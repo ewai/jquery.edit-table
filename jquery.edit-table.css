@@ -1,0 +1,53 @@
+body {
+	font-size:14px;
+}
+table#editTable {
+	border-collapse: collapse;
+}
+
+table#editTable tr:nth-child(1) th {
+	background-color:lemonchiffon;
+	border:1px solid #555555;
+	width:100px;
+}
+table#editTable td {
+	border:1px solid #555555;
+	height:30px;
+	width:100px;
+}
+table#editTable th:nth-child(1) {
+	background-color:lemonchiffon;
+	border:1px solid #555555;
+	text-align:left;
+}
+table#editTable input, table#editTable select {
+	width:100%;
+	height:99%;
+	font-size:15px;
+	border:0px;
+	padding:0px 3px;
+}
+table#editTable input {
+	background-color:navajowhite;
+}
+.onfocusCell, .onfocusCell select {
+	background-color:navajowhite;
+}
+.onfocusTh {
+	background-color:red;
+}
+.Number, .Number input {
+	text-align:right;
+}
+.Date, .Date input {
+}
+.String, .String input {
+}
+.Checkbox, .Checkbox input {
+}
+.Select, .Select input {
+}
+.Display, .Display select {
+	background-color:#EEEEEE;
+}
+
