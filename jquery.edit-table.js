@@ -12,7 +12,10 @@ keyCodeList.ENTER = 13;
 keyCodeList.SLASH = 191;
 keyCodeList.CODE_0 = 48;
 keyCodeList.CODE_9 = 57;
+keyCodeList.CODE_C = 67;
+keyCodeList.CODE_V = 86;
 keyCodeList.SPACE = 32;
+keyCodeList.CTRL = 17;
 
 var setting = {};
 setting.thColor = 'palegreen';
@@ -24,89 +27,117 @@ typeName.NUMBER = 'Number';
 typeName.SELECT = 'Select';
 typeName.CHECKBOX = 'Checkbox';
 
-
+var isMaybeIE = (!jQuery.support.opacity) || (!jQuery.support.noCloneEvent && jQuery.support.opacity);
 var headTh;
 var sideTh;
+var beforeKey = 0;
+var cpCell;
+var cpType;
+
 $.fn.extend({
 	editTable:function(options) {
 		var defaults = {
 			datepicker:true,
 			cannma:true,
-			cellWidth:100,
-			cellHeight:20
+			cellWidth:0,
+			cellHeight:0,
+			sideHead:false
 		};
 		var opts = $.extend({}, defaults, options);
-		setTimeout(ini, 1, this);
+		setTimeout(ini, 1);
 
-		function ini(obj) {
-			$.each($(obj).find('td'), function(event) {
-				if($(this).hasClass(typeName.STRING)) {
-					setTdClickEvent(this, event, typeName.STRING);
-				} else if($(this).hasClass(typeName.DATE)) {
-					setTdClickEvent(this, event, typeName.DATE);
-				} else if($(this).hasClass(typeName.NUMBER)) {
-					setTdClickEvent(this, event, typeName.NUMBER);
+		function ini() {
+			$.each($('table#editTable').find('td'), function(event) {
+				if($(this).hasClass(typeName.STRING)
+						|| $(this).hasClass(typeName.DATE)
+						|| $(this).hasClass(typeName.NUMBER)) {
+					setTdClickEvent(this, event, true);
+				} else if($(this).hasClass(typeName.SELECT)
+						|| $(this).hasClass(typeName.CHECKBOX)) {
+					setTdClickEvent(this, event, false);
 				} 
 			});
-			$('body').click(function(event) {
-				var $target = $(event.target);
-				if (jQuery(':focus').val() == undefined) {
+			$('body').click(function(e) {
+				if (!isInInput(e)) {
 					offInput(false);
 				}
-			}).keydown(function() {
-				return typeKey();
+			}).keydown(function(e) {
+				return typeKey(e);
+			}).keyup(function(e) {
+				beforeKey = 0;
+				return true;
 			});
-
-			$('table#editTable td, table#editTable tr:nth-child(1) th').css('width', opts.cellWidth);
-			$('table#editTable td').css('height', opts.cellHeight);
-			$('table#editTable td.Display input:checkbox, table#editTable td.Display select').attr('disabled', 'disabled');
+			setStyle();
 		};
-		function setTdClickEvent(obj, event, objType) {
-			$(obj).click(function(event) {
-				var $target = $(event.target);
-				if(!$target.is('input')) {
-					offInput(true);
-					$(this).addClass('onfocusCell');
-					createInput($(this));
-				}
+		function setStyle() {
+			if (opts.cellWidth != 0) {
+				$('table#editTable td').css('width', opts.cellWidth);
+			}
+			if (opts.cellHeight != 0) {
+				$('table#editTable td, table#editTable th').css('height', opts.cellHeight);
+			}
+			$('table#editTable td.Display input:checkbox, table#editTable td.Display select').attr('disabled', 'disabled');
+			if(opts.sideHead) {
+				$('table#editTable tr td:nth-child(1)').addClass('sideHead');
+			}
+		}
+		function isInInput(e) {
+			td = $(e.target).parent().find('td');
+			if(td.hasClass(typeName.STRING)
+					|| td.hasClass(typeName.DATE)
+					|| td.hasClass(typeName.NUMBER)) {
+				return false;
+			}
+			return true;
+		}
+		function setTdClickEvent(obj, e, createInputFlg) {
+			$(obj).click(function(e) {
+				offInput(true);
+				$(this).addClass('onfocusCell');
 				setTimeout(setOnCellTh, 1);
+			});
+			$(obj).dblclick(function(e) {
+				if (createInputFlg) createInput($(this));
 			});
 		}
 		function setOnCellTh() {
 			if (!jQuery.isEmptyObject(headTh)) headTh.css('background-color', '');
 			if (!jQuery.isEmptyObject(sideTh)) sideTh.css('background-color', '');
-			$($('.onfocusCell').prevAll().get().reverse()).each(function() {
-				$(this).css('background-color', setting.thColor);
-				headTh = $(this);
-				return false;
-			});
-			var leftNum = $('.onfocusCell').prevAll().length;
+			tds = $('.onfocusCell').prevAll();
+			td = tds.eq(tds.length-1);
+			td.css('background-color', setting.thColor);
+			sideTh= td;
+
+			var leftNum = tds.length;
 			th = $('table#editTable').find('tr:nth-child(1) th').eq(leftNum);
 			th.css('background-color', setting.thColor);
-			sideTh = th;
+			headTh = th;
 		}
 
 		function createInput(obj) {
 			var val = $(obj).text();
-			jQuery('<input type="text"/>')
-				.attr('id', 'inputNow')
-				.appendTo($(obj).html(''));
-			setInputEvent(val);
+			jQuery('<input type="text"/>').attr('id', 'inputNow').val(val).appendTo($(obj).html(''));
+			setInputEvent($('.onfocusCell'), $('#inputNow'));
 			$('#inputNow').focus();
-			var len = $('#inputNow').val().length;
-			document.getElementById('inputNow').setSelectionRange(len, len);
+			var len = val.length;
+			if(isMaybeIE){
+				var range = document.selection.createRange();
+				range.moveEnd('character' , len);
+				range.moveStart('character', len);
+				range.select();
+			} else {
+				document.getElementById('inputNow').setSelectionRange(len, len);
+			}
 		}
 
-		function setInputEvent(val) {
-			$('#inputNow').val(val);
-			if ($('.onfocusCell').hasClass(typeName.STRING)) {
-				
-			} else if ($('.onfocusCell').hasClass(typeName.DATE)) {
+		function setInputEvent(tdObj, inputObj) {
+			if (tdObj.hasClass(typeName.STRING)) {
+			} else if (tdObj.hasClass(typeName.DATE)) {
 				if (opts.datepicker) {
-					$('#inputNow').datepicker({dateFormat: 'yy/mm/dd'});
+					inputObj.datepicker({dateFormat: 'yy/mm/dd'});
 				}
-			} else if ($('.onfocusCell').hasClass(typeName.NUMBER)) {
-				$('#inputNow').val(removeComma(val));
+			} else if (tdObj.hasClass(typeName.NUMBER)) {
+				inputObj.val(removeComma(inputObj.val()));
 			}
 		}
 
@@ -121,50 +152,9 @@ $.fn.extend({
 				$('.onfocusCell').removeClass('onfocusCell');
 			}
 		}
-		function typeKey(){
-			var key = window.event.keyCode;
-			if (jQuery(':focus').val() == undefined) {
-				switch(key) {
-					case keyCodeList.TAB:
-						moveRight();
-						break;
-					case keyCodeList.LEFT:
-						moveLeft();
-						break;
-					case keyCodeList.UP:
-						moveUp();
-						break;
-					case keyCodeList.RIGHT:
-						moveRight();
-						break;
-					case keyCodeList.DOWN:
-						moveDown();
-						break;
-					case keyCodeList.F2:
-						if(!$('.onfocusCell').hasClass(typeName.CHECKBOX)
-							&& !$('.onfocusCell').hasClass(typeName.SELECT)) {
-							createInput($('.onfocusCell'));
-						}
-						if($('.onfocusCell').hasClass(typeName.SELECT)) {
-							$('.onfocusCell select').focus();
-						}
-						break;
-					case keyCodeList.SPACE:
-					case keyCodeList.ENTER:
-						if($('.onfocusCell').hasClass(typeName.CHECKBOX)) {
-							$('.onfocusCell input').click();
-						}
-						if($('.onfocusCell').hasClass(typeName.SELECT)) {
-							$('.onfocusCell select').focus();
-						}
-						break;
-					default:
-						break;
-				}
-			}
-
-			// type data in input
-			if (jQuery(':focus').val() != undefined) {
+		function typeKey(e){
+			var key = e.keyCode;
+			if (isInInput(e)) {
 				switch(key) {
 					case keyCodeList.LEFT:
 					case keyCodeList.RIGHT:
@@ -197,10 +187,74 @@ $.fn.extend({
 						}
 						break;
 				}
+			} else {
+				switch(key) {
+					case keyCodeList.TAB:
+						moveRight();
+						return false;
+					case keyCodeList.LEFT:
+						moveLeft();
+						return false;
+					case keyCodeList.UP:
+						moveUp();
+						return false;
+					case keyCodeList.RIGHT:
+						moveRight();
+						return false;
+					case keyCodeList.DOWN:
+						moveDown();
+						return false;
+					case keyCodeList.F2:
+						if(!$('.onfocusCell').hasClass(typeName.CHECKBOX)
+							&& !$('.onfocusCell').hasClass(typeName.SELECT)) {
+							createInput($('.onfocusCell'));
+						}
+						if($('.onfocusCell').hasClass(typeName.SELECT)) {
+							$('.onfocusCell select').focus();
+						}
+						break;
+					case keyCodeList.SPACE:
+					case keyCodeList.ENTER:
+						if($('.onfocusCell').hasClass(typeName.CHECKBOX)) {
+							$('.onfocusCell input').click();
+						}
+						if($('.onfocusCell').hasClass(typeName.SELECT)) {
+							$('.onfocusCell select').focus();
+						}
+						if($('.onfocusCell').hasClass(typeName.DATE)) {
+							return false;
+						}
+						break;
+					case keyCodeList.CODE_C:
+						if (beforeKey == keyCodeList.CTRL) {
+							if ($('.onfocusCell').hasClass(typeName.STRING)) {
+								cpCell = $('.onfocusCell').html();
+								cpType = typeName.STRING;
+							} else if ($('.onfocusCell').hasClass(typeName.DATE)) {
+								cpCell = $('.onfocusCell').html();
+								cpType = typeName.DATE;
+							} else if ($('.onfocusCell').hasClass(typeName.NUMBER)) {
+								cpCell = $('.onfocusCell').html();
+								cpType = typeName.NUMBER;
+							}
+						}
+						break;
+					case keyCodeList.CODE_V:
+						if (beforeKey == keyCodeList.CTRL && $('.onfocusCell').length > 0) {
+							if (($('.onfocusCell').hasClass(typeName.STRING) && cpType == typeName.STRING)
+									|| ($('.onfocusCell').hasClass(typeName.DATE) && cpType == typeName.DATE)
+									|| ($('.onfocusCell').hasClass(typeName.NUMBER) && cpType == typeName.NUMBER)) {
+								$('.onfocusCell').html(cpCell);
+							}
+						}
+						break;
+					default:
+						break;
+				}
 			}
+			beforeKey = key;
 			return true;
 		}
-		
 		function moveRight() {
 			$('.onfocusCell').nextAll().each(function() {
 				if(move(this)) return false;
@@ -226,24 +280,17 @@ $.fn.extend({
 			});
 		}
 		function move(obj){
-			var moveFlg = false;
-			if($(obj).hasClass(typeName.STRING)) {
-				moveFlg = true;
-			} else if($(obj).hasClass(typeName.DATE)) {
-				moveFlg = true;
-			} else if($(obj).hasClass(typeName.NUMBER)) {
-				moveFlg = true;
-			} else if($(obj).hasClass(typeName.SELECT)) {
-				moveFlg = true;
-			} else if($(obj).hasClass(typeName.CHECKBOX)) {
-				moveFlg = true;
-			}
-			if (moveFlg) {
+			if($(obj).hasClass(typeName.STRING)
+					|| $(obj).hasClass(typeName.DATE)
+					|| $(obj).hasClass(typeName.NUMBER)
+					|| $(obj).hasClass(typeName.SELECT)
+					|| $(obj).hasClass(typeName.CHECKBOX)) {
 				offInput(true);
 				$(obj).addClass('onfocusCell');
 				setTimeout(setOnCellTh, 1);
+				return true;
 			} 
-			return moveFlg;
+			return false;
 		}
 
 		function addComma(str) {
