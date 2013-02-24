@@ -1,24 +1,19 @@
-body {
-	font-size:14px;
-}
 table#editTable {
 	border-collapse: collapse;
+	font-size:14px;
 }
-
-table#editTable th, .sideHead {
-	background-color:lemonchiffon;
+table#editTable thead th, table#editTable .sideHead {
+	background-color:forestgreen;
+	color:aliceblue;
 	width:100px;
 }
 table#editTable, table#editTable td, table#editTable th {
 	border:1px solid gray;
+	color:black;
 }
 table#editTable td {
 	height:25px;
 	width:100px;
-}
-table#editTable th:nth-child(1) {
-	background-color:lemonchiffon;
-	text-align:left;
 }
 table#editTable input, table#editTable select {
 	width:100%;
@@ -26,22 +21,27 @@ table#editTable input, table#editTable select {
 	border:0px;
 	padding:0px 3px;
 }
-table#editTable td.onfocusCell, table#editTable td.onfocusCell input, table#editTable td.onfocusCell select {
-	background-color:navajowhite;
+table#editTable th.No, table#editTable th.NoHead {
+	width:40px;
+	text-align:center;
 }
-
-.Number, .Number input {
+table#editTable th.No {
+	background-color:lightgrey;
+	color:dimgray;
+}
+div.focusBorder {
+	border:1px solid gray;
+	position: absolute;
+	z-index:9998;
+}
+div.copyBorder {
+	border:1px solid lightsalmon;
+	position:absolute;
+	z-index:9999;
+}
+table#editTable .Number, table#editTable .Number input {
 	text-align:right;
 }
-.Date, .Date input {
-}
-.String, .String input {
-}
-.Checkbox, .Checkbox input {
-}
-.Select, .Select input {
-}
-.Display, .Display select {
+table#editTable .Display, table#editTable .Display select {
 	background-color:#EEEEEE;
 }
-
