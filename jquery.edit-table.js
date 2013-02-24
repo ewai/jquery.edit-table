@@ -1,6 +1,6 @@
 /*
  * jQuery edit-table
- * Version 1.0
+ * Version Beta
  * https://github.com/ewai/jquery.edit-table
  * Copyright (c) 2013 Atsushi Iwai
  * Dual licensed under the MIT and GPL licenses.
