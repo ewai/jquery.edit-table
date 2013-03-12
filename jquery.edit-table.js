@@ -20,6 +20,8 @@
 	kc.SLASH = 191;
 	kc.CODE_0 = 48;
 	kc.CODE_9 = 57;
+	kc.CODE_T0 = 96;
+	kc.CODE_T9 = 105;
 	kc.CODE_C = 67;
 	kc.CODE_V = 86;
 	kc.SPACE = 32;
@@ -580,7 +582,8 @@
 		}
 	}
 	function isNumeric(keycode) {
-		if (keycode >= kc.CODE_0 && keycode <= kc.CODE_9) {
+		if ((keycode >= kc.CODE_0 && keycode <= kc.CODE_9) 
+				|| (keycode >= kc.CODE_T0 && keycode <= kc.CODE_T9)) {
 			return true;
 		} else {
 			return false;
