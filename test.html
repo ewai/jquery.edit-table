@@ -37,23 +37,22 @@ $(function() {
 		cellWidth:120,
 		cellHeight:25,
 		sideHead:false,
-		headerIds:["OrderDate","Id","Name","Type","Amount","Used"],
 		headerNames:["OrderDate","BookId","BookName","BookType","Amount","Used"],
-		types:["Date", "String","String","Select","Number","Checkbox"],
+		types:["Date","String","String","Select","Number","Checkbox"],
 		datas:[
-				{"OrderDate":"2013/02/14","Id":"Item-1","Name":"Book A","Type":"","Amount":0,"Used":false},
-				{"OrderDate":"2013/02/21","Id":"Item-2","Name":"Book B","Type":"hardback","Amount":4500,"Used":false},
-				{"OrderDate":"2013/02/23","Id":"Item-3","Name":"Book C","Type":"comic","Amount":250,"Used":true}
+				["2013/02/14","Item-1","Book A","",0,false],
+				["2013/02/21","Item-2","Book B","hardback",4500,false],
+				["2013/02/23","Item-3","Book C","comic",250,true]
 			],
 		selects:{3:["novel","comic","hardback"]},
 		autoRowNum:true
 	});
 	$('#makeData').button().click(function() { 
-		$('#result').html('jsonData=' + $('#editTable').getJsonData());
+		$('#result').html('jsonData=' + $('#editTable').getData());
 	});
 	$('#makeData2').button().click(function() {
-		json = $('#editTable').getJson(); 
-		$('#result2').html('No2. BookName=' + json[1].Name);
+		$('#result2').html('No3. BookName=' + $('#editTable').getJson()[1][2]);
+
 	});
 });
 </script>
@@ -74,13 +73,12 @@ download:<a href="https://github.com/ewai/jquery.edit-table" target="_blank">htt
     cellWidth:120,
     cellHeight:25,
     sideHead:false,
-    headerIds:["OrderDate","Id","Name","Type","Amount","Used"],
     headerNames:["OrderDate","BookId","BookName","BookType","Amount","Used"],
     types:["Date", "String","String","Select","Number","Checkbox"],
     datas:[
-        {"OrderDate":"2013/02/14","Id":"Item-1","Name":"Book A","Type":"","Amount":0,"Used":false},
-        {"OrderDate":"2013/02/21","Id":"Item-2","Name":"Book B","Type":"hardback","Amount":4500,"Used":false},
-        {"OrderDate":"2013/02/23","Id":"Item-3","Name":"Book C","Type":"comic","Amount":250,"Used":true}
+        {"2013/02/14","Item-1","Book A","",0,false},
+        {"2013/02/21","Item-2","Book B","hardback",4500,false},
+        {"2013/02/23","Item-3","Book C","comic",250,true}
       ],
     selects:{3:["novel","comic","hardback"]},
     autoRowNum:true
@@ -95,10 +93,10 @@ download:<a href="https://github.com/ewai/jquery.edit-table" target="_blank">htt
 <table id="editTable">
 </table>
 
-<a href="#" id="makeData">jsonData = $('#editTable').getJsonData()</a>
+<a href="#" id="makeData">jsonData = $('#editTable').getData()</a>
 <div id="result"></div>
 
-<a href="#" id="makeData2">No2. BookName = $('#editTable').getJson()[1].Name</a>
+<a href="#" id="makeData2">No2. BookName = $('#editTable').getJson()[1][2]</a>
 <div id="result2"></div>
 
 </div>

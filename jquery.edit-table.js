@@ -39,12 +39,11 @@
 	tn.DISPLAY = 'Display';
 
 	var isMaybeIE = (!jQuery.support.opacity) || (!jQuery.support.noCloneEvent && jQuery.support.opacity);
-	var headTh;
-	var sideTh;
+	var headTh=null;
+	var sideTh=null;
 	var beforeKey = 0;
 	var cpCell;
 	var cpType;
-	var header = [];
 
 	$.fn.extend({
 		editTable:function(options) {
@@ -54,7 +53,6 @@
 				cellWidth:0,
 				cellHeight:0,
 				sideHead:false,
-				headerIds:[],
 				headerNames:[],
 				types:[],
 				datas:{},
@@ -72,14 +70,14 @@
 			};
 			function setDom() {
 				// append tbody tr
-				if (!jQuery.isEmptyObject(opts.selects) && !($('table#editTable tbody').length>0)) {
+				if (!($('table#editTable tbody').length>0)) {
 					var html = '<tbody><tr>';
 					$(opts.headerNames).each(function() { html += '<td></td>'; });
 					html += '</tr></tbody>';
 					$('table#editTable').prepend(html)
 				}
-				// append tbody tr
-				if (!jQuery.isEmptyObject(opts.headerNames) && !($('table#editTable thead').length>0)) {
+				// append thead tr
+				if (opts.headerNames.length>0 && !($('table#editTable thead').length>0)) {
 					var html = '<thead><tr>';
 					$(opts.headerNames).each(function() { html += '<th></th>'; });
 					html += '</tr></thead>';
@@ -87,24 +85,23 @@
 				}
 				// add checkbox
 				$('table#editTable tbody').find('tr').each(function() {
-					col = 0;
+					var col = 0;
 					$(this).find('td').each(function() {
 						if (opts.types[col] == tn.CHECKBOX) {
 							$(this).html('<input type="checkbox"/>');
 						} if (opts.types[col] == tn.SELECT) {
-							html = '<select>';
-							html += '<option value=""></option>'; 
+							html = '<select><option value=""></option>';
 							$(opts.selects[col]).each(function() { 
 								html += '<option value="' + this +'">' + this + '</option>'; 
 							});
-							html += '</select';
+							html += '</select>';
 							$(this).html(html);
 						}
 						col++;
 					});
 				});
 				// append tr
-				if (!jQuery.isEmptyObject(opts.datas)) {
+				if (!$.isEmptyObject(opts.datas)) {
 					var tbody = $('table#editTable tbody');
 					var trs = tbody.find('tr');
 					len = opts.datas.length - trs.length;
@@ -118,9 +115,9 @@
 			}
 			function setClass() {
 				// add class tbody > td
-				if (!jQuery.isEmptyObject(opts.types)) {
+				if (!$.isEmptyObject(opts.types)) {
 					$('table#editTable tbody tr').each(function(e) {
-						col = 0;
+						var col = 0;
 						$(this).find('td').each(function(e) {
 							$(this).addClass(opts.types[col++]);
 						});
@@ -129,19 +126,19 @@
 			}
 			function setData() {
 				// set thead > th
-				if (!jQuery.isEmptyObject(opts.headerNames)) {
-					row = 0;
+				if (opts.headerNames.length>0) {
+					var row = 0;
 					$('table#editTable thead').find('th').each(function() {
 						$(this).text(opts.headerNames[row++]);
 					});
 				}
 				// set tbody > td
-				if (!jQuery.isEmptyObject(opts.datas)) {
-					row = 0;
+				if (!$.isEmptyObject(opts.datas)) {
+					var row = 0;
 					$('table#editTable tbody').find('tr').each(function() {
-						col = 0;
+						var col = 0;
 						$(this).find('td').each(function() {
-							val = opts.datas[row][opts.headerIds[col]];
+							val = opts.datas[row][col];
 							if (opts.types[col] == tn.CHECKBOX) {
 								if (val) $(this).find('input').attr('checked', true);
 							} else if (opts.types[col] == tn.SELECT) {
@@ -205,15 +202,14 @@
 				if(opts.sideHead) {
 					$('table#editTable tr td:nth-child(1)').addClass('sideHead');
 				}
-				jQuery('<div id="focusBorder-left" class="focusBorder" />').appendTo('body').hide();
-				jQuery('<div id="focusBorder-right" class="focusBorder"/>').appendTo('body').hide();
-				jQuery('<div id="focusBorder-top" class="focusBorder"/>').appendTo('body').hide();
-				jQuery('<div id="focusBorder-bottom" class="focusBorder"/>').appendTo('body').hide();
-				jQuery('<div id="copyBorder-left" class="copyBorder"/>').appendTo('body').hide();
-				jQuery('<div id="copyBorder-right" class="copyBorder"/>').appendTo('body').hide();
-				jQuery('<div id="copyBorder-top" class="copyBorder"/>').appendTo('body').hide();
-				jQuery('<div id="copyBorder-bottom" class="copyBorder"/>').appendTo('body').hide();
-				header = opts.headerIds;
+				$('<div id="focusBorder-left" class="focusBorder" />').appendTo('body').hide();
+				$('<div id="focusBorder-right" class="focusBorder"/>').appendTo('body').hide();
+				$('<div id="focusBorder-top" class="focusBorder"/>').appendTo('body').hide();
+				$('<div id="focusBorder-bottom" class="focusBorder"/>').appendTo('body').hide();
+				$('<div id="copyBorder-left" class="copyBorder"/>').appendTo('body').hide();
+				$('<div id="copyBorder-right" class="copyBorder"/>').appendTo('body').hide();
+				$('<div id="copyBorder-top" class="copyBorder"/>').appendTo('body').hide();
+				$('<div id="copyBorder-bottom" class="copyBorder"/>').appendTo('body').hide();
 			}
 			function isInInput(e) {
 				td = $(e.target).parent().find('td');
@@ -241,26 +237,24 @@
 				});
 			}
 			function setOnCellTh() {
-				if (!jQuery.isEmptyObject(headTh)) headTh.css('background-color', '');
-				if (!jQuery.isEmptyObject(sideTh)) sideTh.css('background-color', '');
-				if (!jQuery.isEmptyObject(headTh)) headTh.css('color', '');
-				if (!jQuery.isEmptyObject(sideTh)) sideTh.css('color', '');
-				tds = $('.onfocusCell').prevAll();
+				if (headTh!=null) headTh.css('background-color', '').css('color', '');
+				if (sideTh!=null) sideTh.css('background-color', '').css('color', '');
+				var tds = $('.onfocusCell').prevAll();
 				if (opts.autoRowNum) {
-					td = tds.eq(tds.length-1);
+					var td = tds.eq(tds.length-1);
 					td.css('color', setting.thColor);
 					td.css('background-color', setting.thBackgroundColor);
 					sideTh= td;
 				}
 				var leftNum = tds.length;
-				th = $('table#editTable').find('tr:nth-child(1) th').eq(leftNum);
+				var th = $('table#editTable').find('tr:nth-child(1) th').eq(leftNum);
 				th.css('color', setting.thColor);
 				th.css('background-color', setting.thBackgroundColor);
 				headTh = th;
 			}
 			function createInput(obj) {
 				var val = $(obj).text();
-				jQuery('<input type="text"/>').attr('id', 'inputNow').val(val).appendTo($(obj).html(''));
+				$('<input type="text"/>').attr('id', 'inputNow').val(val).appendTo($(obj).html(''));
 				setInputEvent($('.onfocusCell'), $('#inputNow'));
 				$('#inputNow').focus();
 				var len = val.length;
@@ -285,7 +279,7 @@
 			}
 			function offInput(borderOffFlg) {
 				var val = $('#inputNow').val();
-				td = $('#inputNow').parent();
+				var td = $('#inputNow').parent();
 				if(td.hasClass(tn.NUMBER)) {
 					if (opts.comma) {
 						val = addComma(val);
@@ -523,49 +517,49 @@
 				return false;
 			}
 		},
-		getJsonData:function(options) {
-			var json = "[";
+		getData:function(options) {
+			var result = "[";
 			var val = "";
 			var row = 0;
 			var col = 0;
 			$('table#editTable tbody').find('tr').each(function() {
-				json += '{';
+				result += '[';
 				col = 0;
 				$(this).find('td').each(function() {
 					if($(this).hasClass(tn.STRING) 
 						|| $(this).hasClass(tn.DATE)) {
-						json += '"' + header[col++] + '":"' + $(this).text() + '",';
+						result += '"' + $(this).text() + '",';
 					} else if($(this).hasClass(tn.NUMBER)) {
-						json += '"' + header[col++] + '":' + removeComma($(this).text()) + ',';
+						result += removeComma($(this).text()) + ',';
 					} else if($(this).hasClass(tn.SELECT)) {
-						json += '"' + header[col++] + '":"' + $(this).find('select').val() + '",';
+						result += '"' + $(this).find('select').val() + '",';
 					} else if($(this).hasClass(tn.CHECKBOX)) {
-						if ($(this).find('input').attr('checked')) {
-							json += '"' + header[col++] + '":true,';
+						if ($(this).find('input').is(':checked')) {
+							result += 'true,';
 						} else {
-							json += '"' + header[col++] + '":false,';
+							result += 'false,';
 						}
 					} else if ($(this).hasClass(tn.DISPLAY)) {
 						if ($(this).find('select').length > 0) {
-							json += '"' + header[col++] + '":"' + $(this).find('select').val() + '",';
+							result += '"' + $(this).find('select').val() + '",';
 						} else if ($(this).find('input:checkbox').length > 0) {
 							if ($(this).find('input').attr('checked')) {
-								json += '"' + header[col++] + '":true,';
+								result += 'true,';
 							} else {
-								json += '"' + header[col++] + '":false,';
+								result += 'false,';
 							}
 						} else {
-							json += '"' + header[col++] + '":"' + $(this).text() + '",';
+							result += '"' + $(this).text() + '",';
 						}
 					}
 				});
-				json = json.substring(0, json.length - 1) + '},';
+				result = result.substring(0, result.length - 1) + '],';
 			});
-			json = json.substring(0, json.length - 1) + "]";
-			return json;
+			result = result.substring(0, result.length - 1) + "]";
+			return result;
 		},
 		getJson:function(options) {
-			return jQuery.parseJSON(this.getJsonData());
+			return jQuery.parseJSON(this.getData());
 		}
 	});
 	function addComma(str) {
